@@ -6,7 +6,7 @@ endif
 
 if GCOV_ENABLED
 # --coverage
-GCOV_CFLAGS = -fprofile-arcs -ftest-coverage
+GCOV_CFLAGS = -fprofile-arcs -ftest-coverage -DGCOV_ENABLED
 GCOV_LFLAGS = -fprofile-arcs -ftest-coverage
 #GCOV_CFLAGS = --coverage
 #GCOV_LFLAGS = --coverage

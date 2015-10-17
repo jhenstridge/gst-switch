@@ -1810,6 +1810,8 @@ error_prepare_recorder:
   }
 }
 
+#ifdef GCOV_ENABLED
+
 static unsigned long long i = 0;
 
 void
@@ -1821,11 +1823,14 @@ my_handler (int signum)
   __gcov_flush ();              /* dump coverage data on receiving SIGUSR1 */
 }
 
+#endif
+
 
 int
 main (int argc, char *argv[])
 {
 
+#ifdef GCOV_ENABLED
   struct sigaction new_action, old_action;
 
   /* setup signal hander */
@@ -1835,6 +1840,7 @@ main (int argc, char *argv[])
   sigaction (SIGUSR1, NULL, &old_action);
   if (old_action.sa_handler != SIG_IGN)
     sigaction (SIGUSR1, &new_action, NULL);
+#endif
 
   gint exit_code = 0;
   GstSwitchServer *srv;
