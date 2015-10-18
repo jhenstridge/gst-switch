@@ -22,6 +22,8 @@
 #ifndef __GST_SWITCH_MDNS_PUBLISH_H__
 #define __GST_SWITCH_MDNS_PUBLISH_H__
 
+#include "gstswitchserver.h"
+
 #include <glib-object.h>
 #include <avahi-client/client.h>
 #include <avahi-client/publish.h>
@@ -44,6 +46,8 @@ struct _GstSwitchMdnsPublish
   AvahiClient *client;
   char *service_name;
   AvahiEntryGroup *group;
+
+  GstSwitchServer *server;
 };
 
 /**
@@ -56,6 +60,6 @@ struct _GstSwitchMdnsPublishClass
 };
 
 GType gst_switch_mdns_publish_get_type (void);
-GstSwitchMdnsPublish *gst_switch_mdns_publish_new ();
+GstSwitchMdnsPublish *gst_switch_mdns_publish_new (GstSwitchServer *server);
 
 #endif //__GST_SWITCH_MDNS_PUBLISH_H__

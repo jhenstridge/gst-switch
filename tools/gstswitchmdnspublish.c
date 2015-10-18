@@ -29,11 +29,16 @@ G_DEFINE_TYPE (GstSwitchMdnsPublish, gst_switch_mdns_publish, G_TYPE_OBJECT);
 
 static void client_callback (AvahiClient *client, AvahiClientState state, void *user_data);
 static void group_callback (AvahiEntryGroup *group, AvahiEntryGroupState state, void *user_data);
+static void create_services (GstSwitchMdnsPublish *self);
 
 static void
 gst_switch_mdns_publish_finalize (GObject *object)
 {
   GstSwitchMdnsPublish *self = GST_SWITCH_MDNS_PUBLISH (object);
+
+  if (self->server) {
+    g_object_unref (self->server);
+  }
 
   if (self->group) {
     avahi_entry_group_free (self->group);
@@ -83,24 +88,29 @@ gst_switch_mdns_publish_init (GstSwitchMdnsPublish *self)
 }
 
 GstSwitchMdnsPublish *
-gst_switch_mdns_publish_new (GstSwitchServerOpts *opts)
+gst_switch_mdns_publish_new (GstSwitchServer *server)
 {
   GstSwitchMdnsPublish *self = g_object_new (GST_TYPE_SWITCH_MDNS_PUBLISH, NULL);
   if (!self) {
     return NULL;
   }
+
+  self->server = g_object_ref (server);
+  if (self->client && avahi_client_get_state (self->client) == AVAHI_CLIENT_S_RUNNING) {
+    create_services (self);
+  }
   return self;
 }
 
 static void
-create_services (GstSwitchMdnsPublish *self, AvahiClient *client)
+create_services (GstSwitchMdnsPublish *self)
 {
   char *new_name = NULL;
 
   if (!self->group) {
-    self->group = avahi_entry_group_new (client, group_callback, self);
+    self->group = avahi_entry_group_new (self->client, group_callback, self);
     if (!self->group) {
-      g_warning ("avahi_entry_group_new() failed: %s", avahi_strerror(avahi_client_errno(client)));
+      g_warning ("avahi_entry_group_new() failed: %s", avahi_strerror(avahi_client_errno(self->client)));
       goto fail;
     }
   }
@@ -116,11 +126,17 @@ create_services (GstSwitchMdnsPublish *self, AvahiClient *client)
    * Either way, add our entries */
   if (avahi_entry_group_is_empty (self->group)) {
     int error;
+    const char version_record[] = "version=1";
+    char *caps_record;
 
+    /* Publish the video service */
+    caps_record = g_strconcat(
+      "caps=", gst_switch_server_get_video_caps_str(), NULL);
     error = avahi_entry_group_add_service (
       self->group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0,
-      self->service_name, "_gstswitch-video._tcp", NULL, NULL, opts.video_input_port,
-      NULL);
+      self->service_name, "_gstswitch-video._tcp", NULL, NULL, self->server->video_acceptor_port,
+      version_record, caps_record, NULL);
+    g_free(caps_record);
     if (error == AVAHI_ERR_COLLISION) {
       goto collision;
     } else if (error != 0) {
@@ -128,10 +144,14 @@ create_services (GstSwitchMdnsPublish *self, AvahiClient *client)
       goto fail;
     }
 
+    /* Publish the video service */
+    caps_record = g_strconcat(
+      "caps=", gst_switch_server_get_audio_caps_str(), NULL);
     error = avahi_entry_group_add_service (
       self->group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0,
-      self->service_name, "_gstswitch-audio._tcp", NULL, NULL, opts.audio_input_port,
-      NULL);
+      self->service_name, "_gstswitch-audio._tcp", NULL, NULL, self->server->audio_acceptor_port,
+      version_record, caps_record, NULL);
+    g_free(caps_record);
     if (error == AVAHI_ERR_COLLISION) {
       goto collision;
     } else if (error != 0) {
@@ -154,7 +174,7 @@ collision:
 
   g_info ("Service name collision.  Renaming to %s", self->service_name);
   avahi_entry_group_reset (self->group);
-  create_services (self, client);
+  create_services (self);
   return;
 
 fail:
@@ -167,7 +187,6 @@ static void
 group_callback (AvahiEntryGroup *group, AvahiEntryGroupState state, void *user_data)
 {
   GstSwitchMdnsPublish *self = user_data;
-  AvahiClient *client = avahi_entry_group_get_client (group);
 
   switch (state) {
   case AVAHI_ENTRY_GROUP_ESTABLISHED:
@@ -180,12 +199,12 @@ group_callback (AvahiEntryGroup *group, AvahiEntryGroupState state, void *user_d
 
     g_info ("Service name collision.  Renaming to %s", self->service_name);
     avahi_entry_group_reset (group);
-    create_services (self, client);
+    create_services (self);
     break;
   }
 
   case AVAHI_ENTRY_GROUP_FAILURE:
-    g_warning ("Entry group failure: %s", avahi_strerror (avahi_client_errno (client)));
+    g_warning ("Entry group failure: %s", avahi_strerror (avahi_client_errno (self->client)));
     break;
 
   case AVAHI_ENTRY_GROUP_UNCOMMITED:
@@ -201,7 +220,9 @@ client_callback (AvahiClient *client, AvahiClientState state, void *user_data)
 
   switch (state) {
   case AVAHI_CLIENT_S_RUNNING:
-    create_services(self, client);
+    if (self->server) {
+      create_services(self);
+    }
     break;
 
   case AVAHI_CLIENT_FAILURE:

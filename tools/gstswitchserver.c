@@ -1843,7 +1843,7 @@ main (int argc, char *argv[])
   gst_switch_server_parse_args (argc, argv);
 
   srv = GST_SWITCH_SERVER (g_object_new (GST_TYPE_SWITCH_SERVER, NULL));
-  publish = gst_switch_mdns_publish_new ();
+  publish = gst_switch_mdns_publish_new (srv);
 
   gst_switch_server_run (srv);
 
