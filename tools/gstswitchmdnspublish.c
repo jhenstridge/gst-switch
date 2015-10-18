@@ -88,13 +88,17 @@ gst_switch_mdns_publish_init (GstSwitchMdnsPublish *self)
 }
 
 GstSwitchMdnsPublish *
-gst_switch_mdns_publish_new (GstSwitchServer *server)
+gst_switch_mdns_publish_new (GstSwitchServer *server, const char *service_name)
 {
+  g_return_if_fail(server != NULL);
+  g_return_if_fail(service_name != NULL);
+
   GstSwitchMdnsPublish *self = g_object_new (GST_TYPE_SWITCH_MDNS_PUBLISH, NULL);
   if (!self) {
     return NULL;
   }
 
+  self->service_name = g_strdup(service_name);
   self->server = g_object_ref (server);
   if (self->client && avahi_client_get_state (self->client) == AVAHI_CLIENT_S_RUNNING) {
     create_services (self);
@@ -113,11 +117,6 @@ create_services (GstSwitchMdnsPublish *self)
       g_warning ("avahi_entry_group_new() failed: %s", avahi_strerror(avahi_client_errno(self->client)));
       goto fail;
     }
-  }
-
-  if (!self->service_name) {
-    // XXX: get this from options
-    self->service_name = g_strdup ("gst-switch");
   }
 
   /* The group will be empty if it was just created, or if we reset it

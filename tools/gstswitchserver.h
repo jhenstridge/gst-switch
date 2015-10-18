@@ -60,6 +60,7 @@ struct _GstSwitchServerOpts
   GstCaps *video_caps;
   gchar *video_caps_str;
   gchar *audio_caps_str;
+  gchar *service_name;
 };
 
 /**

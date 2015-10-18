@@ -60,6 +60,7 @@ struct _GstSwitchMdnsPublishClass
 };
 
 GType gst_switch_mdns_publish_get_type (void);
-GstSwitchMdnsPublish *gst_switch_mdns_publish_new (GstSwitchServer *server);
+GstSwitchMdnsPublish *gst_switch_mdns_publish_new (GstSwitchServer *server,
+                                                   const char *service_name);
 
 #endif //__GST_SWITCH_MDNS_PUBLISH_H__

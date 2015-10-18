@@ -73,13 +73,17 @@
 G_DEFINE_TYPE (GstSwitchServer, gst_switch_server, G_TYPE_OBJECT);
 
 GstSwitchServerOpts opts = {
-  NULL, NULL,
-  GST_SWITCH_SERVER_DEFAULT_CONTROLLER_ADDRESS,
-  GST_SWITCH_SERVER_DEFAULT_VIDEO_ACCEPTOR_PORT,
-  GST_SWITCH_SERVER_DEFAULT_AUDIO_ACCEPTOR_PORT,
-//FALSE,
-  FALSE,
-  NULL, NULL
+  .test_switch        = NULL,
+  .record_filename    = NULL,
+  .controller_address = GST_SWITCH_SERVER_DEFAULT_CONTROLLER_ADDRESS,
+  .video_input_port   = GST_SWITCH_SERVER_DEFAULT_VIDEO_ACCEPTOR_PORT,
+  .audio_input_port   = GST_SWITCH_SERVER_DEFAULT_AUDIO_ACCEPTOR_PORT,
+//.verbose            = FALSE,
+  .low_res            = FALSE,
+  .video_caps         = NULL,
+  .video_caps_str     = NULL,
+  .audio_caps_str     = NULL,
+  .service_name       = "gst-switch",
 };
 
 gboolean verbose = FALSE;
@@ -226,6 +230,8 @@ static GOptionEntry entries[] = {
   {"controller-address", 'c', 0, G_OPTION_ARG_STRING, &opts.controller_address,
       "Specify DBus-Address for remote control, defaults to "
         GST_SWITCH_SERVER_DEFAULT_CONTROLLER_ADDRESS ".", "ADDRESS"},
+  {"service-name", 'n', 0, G_OPTION_ARG_STRING, &opts.service_name,
+      "Specify the zeroconf (Bonjour) service name", "NAME"},
   {NULL}
 };
 
@@ -1843,7 +1849,7 @@ main (int argc, char *argv[])
   gst_switch_server_parse_args (argc, argv);
 
   srv = GST_SWITCH_SERVER (g_object_new (GST_TYPE_SWITCH_SERVER, NULL));
-  publish = gst_switch_mdns_publish_new (srv);
+  publish = gst_switch_mdns_publish_new (srv, opts.service_name);
 
   gst_switch_server_run (srv);
 
