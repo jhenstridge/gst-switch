@@ -126,7 +126,7 @@ create_services (GstSwitchMdnsPublish *self)
    * Either way, add our entries */
   if (avahi_entry_group_is_empty (self->group)) {
     int error;
-    const char version_record[] = "version=1";
+    const char version_record[] = "txtvers=1";
     char *caps_record;
 
     /* Publish the video service */
