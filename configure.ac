@@ -85,6 +85,13 @@ PKG_CHECK_MODULES(GDK, [
   ])
 ])
 
+dnl === Avahi =================================================================
+
+PKG_CHECK_MODULES(AVAHI, [
+  avahi-client
+  avahi-glib
+  ])
+
 dnl === gstreamer related options =============================================
 
 dnl Check for the required version of GStreamer core (and gst-plugins-base)

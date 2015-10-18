@@ -29,6 +29,7 @@
 #include "gstswitchserver.h"
 #include "gstrecorder.h"
 #include "gstcase.h"
+#include "gstswitchmdnspublish.h"
 #include "./gio/gsocketinputstream.h"
 #include "../logutils.h"
 
@@ -1838,12 +1839,15 @@ main (int argc, char *argv[])
 
   gint exit_code = 0;
   GstSwitchServer *srv;
+  GstSwitchMdnsPublish *publish;
   gst_switch_server_parse_args (argc, argv);
 
   srv = GST_SWITCH_SERVER (g_object_new (GST_TYPE_SWITCH_SERVER, NULL));
+  publish = gst_switch_mdns_publish_new ();
 
   gst_switch_server_run (srv);
 
+  g_object_unref (publish);
   exit_code = srv->exit_code;
   g_object_unref (srv);
 
