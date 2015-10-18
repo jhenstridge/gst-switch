@@ -8,6 +8,8 @@ sudo apt-get install \
     libgstreamer-plugins-base1.0-dev \
     gstreamer1.0-plugins-bad \
     gstreamer1.0-tools \
+    libavahi-client-dev \
+    libavahi-glib-dev \
     autoconf \
     libtool
 

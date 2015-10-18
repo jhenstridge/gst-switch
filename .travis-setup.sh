@@ -7,6 +7,7 @@ sudo apt-get -y update && sudo apt-get -y upgrade
 sudo apt-get -y install build-essential dh-autoreconf
 sudo apt-get -y install libgtk-3-dev
 sudo apt-get -y install gstreamer1.0.* libgstreamer.*1.0.*
+sudo apt-get -y install libavahi-client-dev libavahi-glib-dev
 
 # Python stuff for gst-switch API - Python 2.7
 sudo apt-get -y install python-software-properties python-pip
