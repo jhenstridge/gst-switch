@@ -1,5 +1,6 @@
 #vim :
 sudo: required
+dist: trusty
 
 language:
  - c
@@ -19,15 +20,14 @@ env:
   - TEST=server TYPE=integration
 
 install:
- - wget -q -O- https://raw.githubusercontent.com/mithro/travis-trusty/master/setup.sh | bash
  - chmod a+rx $PWD/.travis-*.sh
- - /trusty/run.py $PWD/.travis-setup.sh
+ - $PWD/.travis-setup.sh
 
 script:
- - /trusty/run.py $PWD/.travis-run.sh
+ - $PWD/.travis-run.sh
 
 after_script:
- - /trusty/run.py $PWD/.travis-after.sh
+ - $PWD/.travis-after.sh
 
 notifications:
   email:
