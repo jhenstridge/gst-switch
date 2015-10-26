@@ -1,7 +1,10 @@
 #! /bin/bash -ex
 
+export DEBIAN_FRONTEND=noninteractive
+
 # Update / upgrade everything
-sudo apt-get -y update && sudo apt-get -y upgrade
+sudo apt-get -y update
+sudo apt-get -o Dpkg::Options::="--force-confold" -y upgrade
 
 # gst-switch compile stuff
 sudo apt-get -y install build-essential dh-autoreconf
