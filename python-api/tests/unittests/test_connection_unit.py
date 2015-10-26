@@ -180,7 +180,7 @@ class TestSignalSubscribe(object):
 
         # test that Gio's signal_subscribe method is called once
         # and passed the callback as-is
-        signal_subscribe_mock.assert_called_once()
+        assert signal_subscribe_mock.call_count == 1
 
         # pylint does not recognize Mock.call_args as sequence and won't
         # allow us to unpack it. Disabling the warning because we know what

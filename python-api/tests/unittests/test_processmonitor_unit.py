@@ -56,8 +56,8 @@ class TestProcessMonitor(object):
             mon.stdout = sys.stdout
             mon.terminate()
 
-            mocks['communicate'].assert_called_once()
-            mocks['terminate'].assert_called_once()
+            assert mocks['communicate'].call_count == 1
+            assert mocks['terminate'].call_count == 1
 
     def test_copy_remaining_on_terminate(self):
         """ Test if terminating a ProcessMonitor at least calls
@@ -113,7 +113,7 @@ class TestProcessMonitor(object):
             mon = ProcessMonitor('abc')
             mon._buffer = 'aaa ZZZ ccc'
             mon.wait_for_output('ZZZ', timeout=0, count=1)
-            mock.assert_called_once()
+            assert mock.call_count == 1
 
     def test_instant_fail(self):
         """ Test if wait_for_output fails instantly if the buffer
@@ -129,7 +129,7 @@ class TestProcessMonitor(object):
                 mon._buffer = 'aaa bbb ccc'
                 with pytest.raises(MatchTimeoutError):
                     mon.wait_for_output('ZZZ', timeout=0, count=1)
-                mock.assert_called_once()
+                assert mock.call_count == 1
 
     def test_instant_return_two_times(self):
         """ Test if wait_for_output returns instantly if the buffer
@@ -140,7 +140,7 @@ class TestProcessMonitor(object):
             mon = ProcessMonitor('abc')
             mon._buffer = 'aaa ZZZ ccc ZZZ ddd'
             mon.wait_for_output('ZZZ', timeout=0, count=2)
-            mock.assert_called_once()
+            assert mock.call_count == 1
 
     def test_instant_return_two_times_in_buffer(self):
         """ Test if wait_for_output returns instantly if the buffer
@@ -151,7 +151,7 @@ class TestProcessMonitor(object):
             mon = ProcessMonitor('abc')
             mon._buffer = 'aaa ZZZ ccc ZZZ ddd'
             mon.wait_for_output('ZZZ', timeout=0, count=1)
-            mock.assert_called_once()
+            assert mock.call_count == 1
 
     def test_instant_fail_two_times(self):
         """ Test if wait_for_output fails instantly if the buffer
@@ -166,7 +166,7 @@ class TestProcessMonitor(object):
                 mon._buffer = 'aaa ZZZ bbb ccc'
                 with pytest.raises(MatchTimeoutError):
                     mon.wait_for_output('ZZZ', timeout=0, count=2)
-            selectmock.assert_called_once()
+            assert selectmock.call_count == 1
 
     def test_fail_not_a_timeout(self):
         """ Test if wait_for_output fails if select.select returns without
@@ -180,7 +180,7 @@ class TestProcessMonitor(object):
                 mon._buffer = 'aaa bbb ccc'
                 with pytest.raises(SelectError):
                     mon.wait_for_output('ZZZ', timeout=500, count=1)
-                    mock.assert_called_once()
+                    assert mock.call_count == 1
 
     def test_read_returns_normally(self):
         """ Test if wait_for_output returns successfull with when os.read

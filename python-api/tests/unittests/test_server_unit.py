@@ -326,7 +326,7 @@ class TestRun(object):
         serv._start_process = Mock()
         serv.gst_option_string = '-ZZZ'
         serv._run_process()
-        serv._start_process.assert_called_once()
+        assert serv._start_process.call_count == 1
         assert '-ZZZ' in serv._start_process.call_args[0][0]
 
     def test_video_format(self):
@@ -335,7 +335,7 @@ class TestRun(object):
         serv._start_process = Mock()
         serv.video_format = 'ZZZ'
         serv._run_process()
-        serv._start_process.assert_called_once()
+        assert serv._start_process.call_count == 1
         assert '--video-format=ZZZ' in serv._start_process.call_args[0][0]
 
     def test_start_process_error(self, monkeypatch):
