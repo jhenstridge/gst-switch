@@ -20,7 +20,7 @@ sudo pip install --upgrade --no-binary=pytest -r requirements.txt subprocess32
 sudo apt-get -y install python3-software-properties python3-pip
 sudo apt-get -y install libglib2.0-dev gir1.2-glib-2.0 libgirepository1.0-dev libglib2.0-0 python3-gi
 sudo apt-get -y install python3-scipy python3-pil
-sudo pip3 install --upgrade --no-binary=pytest -r requirements.txt
+sudo pip3 install --upgrade -r requirements.txt
 
 # Needed for tests
 sudo apt-get -y install wget libav-tools
